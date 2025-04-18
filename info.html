@@ -1,0 +1,304 @@
+<!-- enctype attribute -->
+
+<!--create a form for admin and also need to display in webpg and submitt=ed values need to be saved in admin
+     def registerview(request):
+    name=request.POST['name']
+    "name" this variable should same as the varaible name in models.py class
+    username=request.POST['username']
+    phone=request.POST['ph']
+    image=request.FILES['image']
+    address=request.POST['addr']
+    password=int(request.POST['password'])
+    data=Data(name=name, address=address, phone=phone, image=image, username=username)
+    data.save()
+    return render(request,"register.html")
+
+    .save() used to save values from registerpg to admin
+and then for image on settings.pyn
+
+STATIC_URL = 'static/'
+MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+MEDIA_URL='/media/'
+STATICFILES_DIRS=[
+    BASE_DIR,"static"
+] 
+in urls.py/userproject 
+
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path("",include('userapp.urls'))
+]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT) 
+
+to show image in admin-->
+
+<!-- now to access vlaues in admin into frontend so for that 
+eg.the username pass we would save to in the table of admin at the same time it has to be saved in the frontend table (login credentials)
+so for that creatw registerview.html (path is already given for above purpose) and create loginaccount class in view.py
+    return render(request,"registerview.html",{'result':data})
+ here, result is a dictionary keyword where all the datas in the 'data' is stored in the key 'result
+ 
+ 
+ next to create a table in registerview.html' CRED operation (create)
+
+            <a href='loginaccount'>register details</a>  in register pg  to view the details which is stored in loginaccount class 
+-->
+
+
+<!-- next  delete operation (CRED) to delete the details from registerview pg also get deleted in admin
+create fun in views.py
+
+def deleteData(request,id):
+    d=Data.objects.get(id=id)
+    d.delete()
+    return redirect("/")
+
+    then
+    path("delete/<id>",views.deleteData,name="deletedata"),
+
+and  
+            <td><button><a href="/delete/{{i.id}}" type="button" class="btn btn-outline">delete</td></a> in registerview
+-->
+
+<!-- next to register login form in admin so for that we creat a Login class in models.py and register it in admin ,
+and in registerview class  
+ data1=Data(username=username,password=password,type=1)
+    (here we give type=1 default to navigate the users to userpg and we can later assign one of the user type=0 so the that user can access the admin pg)
+    data1.save()   to save the credentials in the admin can get the fields username password and type -->
+
+    <!-- then  to dispaly login details given in admin to the frontend in a table 
+    def loginaccount(request):
+    data=Data.objects.all()
+    data1=Login.objects.all()
+    return render(request,"registerview.html",{'result':data ,'result1':data1})
+
+ and 
+ in registerview.html created a table 
+<table width:'40%' align="center">
+            <tr>
+                <th>Username</th>
+                <th>Password</th>
+            </tr>
+            {% for i in result1 %}
+            <tr>
+                <td>{{i.username}}</td>
+                <td>{{i.password}}</td>
+                <td><button><a href="/delete/{{i.id}}" type="button" class="btn btn-outline">delete</td></a>
+                {% endfor %}
+            </tr>
+            </table> <br>
+        which display the login details in the admin 
+    eg. first i would register in the register form which will be saved in to admin also the login credentials is also saved in to the login as (admin) which then by the above table it is then displayed in the frontend (/loginaccount pg) -->
+
+
+
+    
+    <!-- next create admin and user html pg -->
+    <!-- then create a class check
+    def check(request):
+    username=(request.POST["username"])
+    password=(request.POST["password"])
+    data1=Login.objects.get(username=username,password=password)
+    if data1.type==1:
+      request.session["username"]=data1.username
+      return render(request,"user.html")
+    elif data1.type==0:
+        request.session["username"]=data1.username
+        return render(request,"adminn.html")
+    
+        then in login pg we give action="check"
+            <form action="check" method="POST" enctype="multipart/form-data">
+                by this operation by giving login credentials users can login into user pg and
+        <a href='loginaccount'>register details</a>  is given in adminn.html pg
+                
+    -->
+
+    <!-- next adding products 
+    create product.html & create a form 
+and next create product class in models.py then register in admin.py
+then 
+def productview(request):
+    productname=request.POST['productname']
+    description=request.POST['description']
+    price=request.POST['price']
+    photo=request.FILES['photo']
+    productdata=Product(productname=productname, description=description, price=price, photo=photo,)
+    productdata.save()
+    return render(request,"product.html") 
+and then add products then they will be saved in to the admin 
+
+Next create productview.html pg
+then create class  productdisplay 
+
+def productdisplay(request):
+    productdata=Product.objects.all()
+    return render(request,"productview.html",{'result2':productdata})
+    (add path for productdisplay)
+then we objects.all() to fetch data from admin to the website (should use same variable name which is used in productview class )
+then we create a table in productview same as registerview.html
+and give a link using anchor tag in adminn.html
+
+then next we give delete button in the table
+def deleteProduct(request,id):
+    p=Product.objects.get(id=id)
+    p.delete()
+    return redirect("/") 
+
+    in urls.py    
+    path("delete1/<id>",views.deleteProduct,name="deleteproduct"),
+
+    in productview.html
+    <td><button><a href="/delete1/{{i.id}}" type="button" class="btn btn-outline">delete</td></a>
+
+-->
+
+<!-- next in user pg we need to display the pdts added as cards 
+to display the product we need to 
+objects.all in check function
+
+    if data1.type==1:
+      request.session["username"]=data1.username
+      productdata=Product.objects.all()
+      return render(request,"user.html",{'result2':productdata})-->
+
+
+
+
+
+<!-- next create buy pg (who when bought the item to get their username productname)
+o for that create  buy class in models.py  
+
+from datetime import date
+from django.contrib import messages
+
+class Buy(models.Model):
+    username=models.ForeignKey(Data,on_delete=models.CASCADE)
+    productname=models.ForeignKey(Product,on_delete=models.CASCADE) 
+    register in admin.py
+
+then we create a form in user pg 
+     <div class="card" style="width: 18rem; display:inline-block;">
+        <div class="card border-warning">
+          <form action="buy" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" value="{{i.id}}" name="productname">
+        
+        then in views.py create buy function
+    def buy(request):
+    username=request.session["username"]
+    productname=request.POST['productname']
+    today=date.today()
+    shop=Data.objects.get(username=username)
+    shoppro=Product.objects.get(id=productname)
+    data3=Buy(username=shop,productname=shoppro,date=today)
+    data3.save()
+    data3=Product.objects.all()
+    messages.success(request,"product is buyed")
+    return render(request,"success.html",{'result2':data3})-->
+
+    <!-- next to create profile pg to display our profile name username address phone image
+    def myprofile(request):
+    a=request.session["username"]
+    data=Data.objects.get(username=a)
+    return render(request,"myprofile.html",{'result':data})
+
+then creatw a form 
+        <div align="center">
+            <table width="90%">
+            <tr>
+                <th>Name</tr>
+                <th>Address</tr>
+                <th>Phone</tr>
+                <th>Username</tr>
+                </tr>
+                <tr>
+                    <td>{{result.name}}</td>
+                    <td>{{result.address}}</td>
+                    <td>{{result.phone}}</td>
+                    <td>{{result.username}}</td>]
+                </tr>
+            </table>
+        
+        then give a link in user pg
+      <a href="myprofile" class="btn btn-outline-primary" >myprofile</a>
+    
+    next we have to create logout (byourself)-->
+
+
+
+
+
+
+
+
+<!-- next to add to cart  ordered details
+create class myorder
+def myorder(request):
+    a=request.session["username"]
+    shop=Data.objects.get(username=a)
+    data4=Buy.objects.filter(username=shop)
+    return render(request,"myorder.html",{'result3':data4})
+
+then next create a table in myorder.html pg
+        <table width:'40%' align="center">
+        <tr>
+            <th>Name</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Date</th>
+        </tr>
+        {% for i in result3 %}
+        <tr>
+            <td>{{i.username.username}}</td>
+            <td>{{i.productname.productname}}</td>    <input type="hidden" value="{{i.id}}" name="productname"> this productname  from user.html is used here
+            <td>{{i.productname.price}}</td>
+            <td>{{i.date}}</td>
+            {% endfor %}-->
+
+
+
+
+<!-- next update operation  CRED 
+so we to give edit button in frontend admin pg where admin can edit the user details
+create edit.html then create form
+
+            <form action="" method="POST" enctype="multipart/form-data">
+                name: <input type="text" name="name" value={{edit.name}} required><br><br>
+                address: <input type="text" name="addr" value={{edit.address}} required><br><br>
+                phone: <input type="tel" name="ph" value={{edit.phone}} required><br><br>
+                {% if edit.image %}
+                image:<img src="{{edit.image.url}}" class="prod-size" width="200px">
+                {% endif %}
+                <input type="files" name="image"><br><br>
+                username: <input type="text" name="username" value={{edit.username}} required><br><br>
+                <button type="submit" class="btn btn-warning">Update</button>
+                {% csrf_token %}
+            </form>
+
+
+then create updateData function in views.py
+def updateData(request,pk):
+    edit=Data.objects.get(id=pk)
+    if request.method =="POST":
+       edit.image=request.FILES.get('image')
+       edit.name=request.POST.get('name')
+       edit.address=request.POST.get('addr')
+       edit.username=request.POST.get('username')
+       edit.save()
+       messages.success(request,"product updated successfully ")
+    context={'edit':edit}
+    return render(request,"edit.html",context)
+ and create a form in edit.html pg
+ then nxt give a button in registerview.html 
+    <td>,button> <a type="button"  href="{% url 'updateData' i.id %}" class="btn btn-outline-primary">Edit</a></button>
+
+then we give path in urls,py 
+    path("edit/<str:pk>",views.updateData,name="updateData"),-->
+
+    <!-- NEXT REFER PAYMENT FOR THE PROJECT  -->
+
+<!-- next to link sql to django  in next project-->
